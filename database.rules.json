@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "visitors": {
+      ".read": true,
+      "$sessionId": {
+        ".write": "!data.exists() || data.child('sessionId').val() == newData.child('sessionId').val()"
+      }
+    }
+  }
+}
