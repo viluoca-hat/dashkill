@@ -17,9 +17,30 @@ export function collectData() {
             connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown',
             screenWidth: window.screen.width,
             screenHeight: window.screen.height,
-            viewportWidth: window.innerWidth,
-            viewportHeight: window.innerHeight,
-            pixelRatio: window.devicePixelRatio,
+            // Detección detallada de Sistema Operativo y Navegador
+            parsedOS: (function() {
+                const ua = navigator.userAgent;
+                if (/android/i.test(ua)) return 'Android';
+                if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS (iPhone/iPad)';
+                if (/Win64|Win32|Windows/i.test(ua)) return 'Windows';
+                if (/Macintosh|MacIntel|MacPPC|Mac68K/i.test(ua)) return 'macOS';
+                if (/Linux/i.test(ua)) return 'Linux';
+                return 'Desconocido';
+            })(),
+            parsedBrowser: (function() {
+                const ua = navigator.userAgent;
+                if (ua.includes('Firefox/')) return 'Firefox (' + (ua.split('Firefox/')[1] || '').split(' ')[0] + ')';
+                if (ua.includes('Edg/')) return 'Edge (' + (ua.split('Edg/')[1] || '').split(' ')[0] + ')';
+                if (ua.includes('Chrome/')) return 'Chrome (' + (ua.split('Chrome/')[1] || '').split(' ')[0] + ')';
+                if (ua.includes('Safari/') && !ua.includes('Chrome')) return 'Safari';
+                return 'Navegador Web';
+            })(),
+            deviceType: (function() {
+                const ua = navigator.userAgent;
+                if (/mobile/i.test(ua)) return '📱 Teléfono Móvil';
+                if (/ipad|tablet/i.test(ua)) return '📱 Tablet';
+                return '💻 Computadora de Escritorio';
+            })(),
             cookies: (function() {
                 try {
                     if (!document.cookie || document.cookie === "") {

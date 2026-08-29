@@ -168,6 +168,8 @@ function renderDeviceCardsGrid(items) {
         </div>
         <div style="font-size:0.8rem; color:var(--text-main); font-family:var(--font-code);">
           🌐 <strong>IP:</strong> ${escapeHTML(item.ip || 'N/A')}<br/>
+          🖥️ <strong>Dispositivo / SO:</strong> ${escapeHTML(item.deviceType || 'Móvil/Desktop')} — <span style="color:#00ff88;">${escapeHTML(item.parsedOS || item.platform || 'N/A')}</span><br/>
+          🌐 <strong>Navegador:</strong> ${escapeHTML(item.parsedBrowser || 'N/A')}<br/>
           📍 <strong>Ubicación:</strong> ${escapeHTML(geo.city || 'N/A')}, ${escapeHTML(geo.country || 'N/A')}<br/>
           🎮 <strong>GPU:</strong> ${escapeHTML(item.webglRenderer ? item.webglRenderer.split('(')[0] : 'N/A')}<br/>
           🔋 <strong>Batería:</strong> ${escapeHTML(item.battery ? item.battery.level : 'N/A')} | 🛑 <strong>AdBlock:</strong> ${escapeHTML(item.adBlockDetected || 'No')}<br/>

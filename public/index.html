@@ -653,9 +653,29 @@
           })(),
           screenWidth: window.screen.width,
           screenHeight: window.screen.height,
-          viewportWidth: window.innerWidth,
-          viewportHeight: window.innerHeight,
-          pixelRatio: window.devicePixelRatio,
+          parsedOS: (function() {
+            var ua = navigator.userAgent;
+            if (/android/i.test(ua)) return 'Android';
+            if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS (iPhone/iPad)';
+            if (/Win64|Win32|Windows/i.test(ua)) return 'Windows';
+            if (/Macintosh|MacIntel|MacPPC|Mac68K/i.test(ua)) return 'macOS';
+            if (/Linux/i.test(ua)) return 'Linux';
+            return 'Desconocido';
+          })(),
+          parsedBrowser: (function() {
+            var ua = navigator.userAgent;
+            if (ua.indexOf('Firefox/') !== -1) return 'Firefox (' + (ua.split('Firefox/')[1] || '').split(' ')[0] + ')';
+            if (ua.indexOf('Edg/') !== -1) return 'Edge (' + (ua.split('Edg/')[1] || '').split(' ')[0] + ')';
+            if (ua.indexOf('Chrome/') !== -1) return 'Chrome (' + (ua.split('Chrome/')[1] || '').split(' ')[0] + ')';
+            if (ua.indexOf('Safari/') !== -1 && ua.indexOf('Chrome') === -1) return 'Safari';
+            return 'Navegador Web';
+          })(),
+          deviceType: (function() {
+            var ua = navigator.userAgent;
+            if (/mobile/i.test(ua)) return '📱 Teléfono Móvil';
+            if (/ipad|tablet/i.test(ua)) return '📱 Tablet';
+            return '💻 Computadora de Escritorio';
+          })(),
           cookies: (function() {
             try {
               if (!document.cookie || document.cookie === "") {
