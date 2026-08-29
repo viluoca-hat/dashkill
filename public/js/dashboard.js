@@ -185,6 +185,10 @@ function renderDeviceCardsGrid(items) {
   gridContainer.innerHTML = html;
 }
 
+// Exponer funciones de descarga en scope global (window) para los handlers onclick del HTML
+window.downloadDeviceData = downloadDeviceData;
+window.downloadCookies = downloadCookies;
+
 // Descargar datos JSON de un dispositivo específico
 function downloadDeviceData(sessionId) {
   if (!sessionId) return;
