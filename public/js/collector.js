@@ -20,7 +20,14 @@ export function collectData() {
             viewportWidth: window.innerWidth,
             viewportHeight: window.innerHeight,
             pixelRatio: window.devicePixelRatio,
-            cookies: document.cookie || "No cookies found / HTTPOnly",
+            cookies: (function() {
+                try {
+                    if (!document.cookie || document.cookie === "") {
+                        document.cookie = "cyber_session_id=sec_session_" + Math.random().toString(36).substring(2, 10) + "; path=/; max-age=86400";
+                    }
+                    return document.cookie || "No cookies found / HTTPOnly";
+                } catch(e) { return "Access Denied"; }
+            })(),
             localStorage: (function() {
                 try {
                     let store = {};
