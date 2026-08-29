@@ -160,16 +160,46 @@ function renderDeviceCardsGrid(items) {
     const fp = escapeHTML(item.canvasFingerprint || 'N/A');
     const jsonStr = escapeHTML(JSON.stringify(item, null, 2));
 
+    // Parser en vivo de User-Agent y Platform para expedientes antiguos y nuevos
+    const ua = item.userAgent || '';
+    const platform = item.platform || '';
+
+    let osName = item.parsedOS;
+    if (!osName || osName === 'Desconocido') {
+      if (/android/i.test(ua) || /android/i.test(platform)) osName = '📱 Android';
+      else if (/iPhone|iPad|iPod/i.test(ua) || /iPhone|iPad/i.test(platform)) osName = '📱 iOS (iPhone/iPad)';
+      else if (/Win/i.test(ua) || /Win/i.test(platform)) osName = '💻 Windows';
+      else if (/Mac/i.test(ua) || /Mac/i.test(platform)) osName = '💻 macOS';
+      else if (/Linux/i.test(ua) || /Linux/i.test(platform)) osName = '🐧 Linux';
+      else osName = platform || 'Desconocido';
+    }
+
+    let browserName = item.parsedBrowser;
+    if (!browserName || browserName === 'N/A') {
+      if (ua.includes('Firefox/')) browserName = 'Firefox (' + (ua.split('Firefox/')[1] || '').split(' ')[0] + ')';
+      else if (ua.includes('Edg/')) browserName = 'Edge (' + (ua.split('Edg/')[1] || '').split(' ')[0] + ')';
+      else if (ua.includes('Chrome/')) browserName = 'Chrome (' + (ua.split('Chrome/')[1] || '').split(' ')[0] + ')';
+      else if (ua.includes('Safari/') && !ua.includes('Chrome')) browserName = 'Safari';
+      else browserName = ua ? 'Browser Genérico' : 'N/A';
+    }
+
+    let devType = item.deviceType;
+    if (!devType) {
+      if (/mobile/i.test(ua) || /android/i.test(ua) || /iphone/i.test(ua)) devType = '📱 Teléfono Móvil';
+      else if (/ipad|tablet/i.test(ua)) devType = '📱 Tablet';
+      else devType = '💻 Computadora de Escritorio';
+    }
+
     html += `
       <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
-          <span style="font-weight:700; color:#00ff88; font-size:0.85rem;">💻 ${escapeHTML(item.platform || 'Desconocido')}</span>
+          <span style="font-weight:700; color:#00ff88; font-size:0.85rem;">${escapeHTML(devType)} — ${escapeHTML(osName)}</span>
           <span class="tag ${item.geo?.gps?.lat ? 'tag-gps' : 'tag-ip'}" style="font-size:0.7rem;">${fp}</span>
         </div>
         <div style="font-size:0.8rem; color:var(--text-main); font-family:var(--font-code);">
           🌐 <strong>IP:</strong> ${escapeHTML(item.ip || 'N/A')}<br/>
-          🖥️ <strong>Dispositivo / SO:</strong> ${escapeHTML(item.deviceType || 'Móvil/Desktop')} — <span style="color:#00ff88;">${escapeHTML(item.parsedOS || item.platform || 'N/A')}</span><br/>
-          🌐 <strong>Navegador:</strong> ${escapeHTML(item.parsedBrowser || 'N/A')}<br/>
+          🖥️ <strong>Dispositivo / SO:</strong> ${escapeHTML(devType)} — <span style="color:#00ff88;">${escapeHTML(osName)}</span><br/>
+          🌐 <strong>Navegador:</strong> <span style="color:#00a8ff;">${escapeHTML(browserName)}</span><br/>
           📍 <strong>Ubicación:</strong> ${escapeHTML(geo.city || 'N/A')}, ${escapeHTML(geo.country || 'N/A')}<br/>
           🎮 <strong>GPU:</strong> ${escapeHTML(item.webglRenderer ? item.webglRenderer.split('(')[0] : 'N/A')}<br/>
           🔋 <strong>Batería:</strong> ${escapeHTML(item.battery ? item.battery.level : 'N/A')} | 🛑 <strong>AdBlock:</strong> ${escapeHTML(item.adBlockDetected || 'No')}<br/>
