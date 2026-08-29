@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>SOC Dashboard — CyberForensic Realtime Operations</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Firebase Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-hover: #1a1a26;
+      --border-color: #2a2a3c;
+      --red-primary: #ff3344;
+      --red-neon: #ff0033;
+      --red-glow: rgba(255, 0, 51, 0.4);
+      --green-live: #00ff88;
+      --green-glow: rgba(0, 255, 136, 0.4);
+      --text-main: #e2e8f0;
+      --text-muted: #8492a6;
+      --accent-blue: #00a8ff;
+      --font-code: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* TOP HEADER */
+    .soc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px;
+      background: rgba(18, 18, 26, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .soc-title-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .soc-badge {
+      background: linear-gradient(135deg, var(--red-neon), #990011);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 10px var(--red-glow);
+    }
+
+    .soc-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-code);
+      font-size: 0.85rem;
+      color: var(--green-live);
+      background: rgba(0, 255, 136, 0.08);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--green-live);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green-live);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-action {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: var(--bg-hover);
+      border-color: var(--red-primary);
+      color: #fff;
+    }
+
+    /* MAIN CONTAINER */
+    .dashboard-grid {
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    /* KPI CARDS */
+    .kpi-card {
+      grid-column: span 3;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 51, 68, 0.5);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--red-primary);
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-top: 10px;
+      font-family: var(--font-code);
+    }
+
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--green-live);
+      margin-top: 6px;
+    }
+
+    /* NAVIGATION TABS BAR */
+    .tabs-bar {
+      grid-column: span 12;
+      display: flex;
+      gap: 12px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-top: 4px;
+    }
+
+    .tab-btn {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      background: var(--red-primary);
+      color: #fff;
+      border-color: var(--red-neon);
+      box-shadow: 0 0 15px var(--red-glow);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* TAB CONTENTS */
+    .tab-content {
+      grid-column: span 12;
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* MAP & CHART GRID */
+    .map-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .map-container {
+      grid-column: span 8;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      height: 440px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #soc-map {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      background: #000;
+    }
+
+    #soc-map .leaflet-tile-container img {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+    }
+
+    .chart-container {
+      grid-column: span 4;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      height: 440px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* TABLE SECTION */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .search-input {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      width: 320px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--red-primary);
+    }
+
+    .events-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .events-table th {
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--text-muted);
+      padding: 12px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .events-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-family: var(--font-code);
+    }
+
+    .events-table tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .events-table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .tag-gps {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--green-live);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+
+    .tag-ip {
+      background: rgba(0, 168, 255, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(0, 168, 255, 0.3);
+    }
+
+    /* DEVICE CARDS GRID & JSON RAW */
+    .device-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 20px;
+    }
+
+    .device-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.2s ease;
+    }
+
+    .device-card:hover {
+      border-color: var(--red-primary);
+    }
+
+    .device-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .device-platform {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--green-live);
+    }
+
+    .device-info-list {
+      font-size: 0.85rem;
+      font-family: var(--font-code);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      line-height: 1.5;
+    }
+
+    .device-info-item {
+      display: flex;
+      justify-content: space-between;
+      background: var(--bg-dark);
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .json-box {
+      background: #050508;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: #00ff88;
+      max-height: 220px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    /* DRAWER FORENSE */
+    .drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .drawer-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0; right: -550px;
+      width: 520px; height: 100%;
+      background: var(--bg-card);
+      border-left: 2px solid var(--red-primary);
+      z-index: 2001;
+      transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 28px;
+      overflow-y: auto;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+    }
+
+    .drawer.active {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .drawer-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .drawer-close:hover {
+      color: var(--red-primary);
+    }
+
+    .detail-group {
+      margin-bottom: 20px;
+    }
+
+    .detail-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .detail-value-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-code);
+      font-size: 0.85rem;
+      word-break: break-all;
+    }
+
+    @media (max-width: 1200px) {
+      .kpi-card { grid-column: span 6; }
+      .map-container { grid-column: span 12; }
+      .chart-container { grid-column: span 12; }
+    }
+
+    @media (max-width: 768px) {
+      .kpi-card { grid-column: span 12; }
+      .drawer { width: 100%; right: -100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="soc-header">
+    <div class="soc-title-group">
+      <span class="soc-badge">RED TEAM SOC</span>
+      <h1 class="soc-title">CyberForensic Telemetry Command</h1>
+    </div>
+    <div class="live-status">
+      <div class="pulse-dot"></div>
+      <span id="conn-text">CONECTADO A FIREBASE</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action" id="btn-export">
+        📥 Exportar CSV
+      </button>
+      <a href="index.html" class="btn-action" style="text-decoration: none;">
+        🌐 Ir al Portal
+      </a>
+    </div>
+  </header>
+
+  <!-- DASHBOARD GRID -->
+  <main class="dashboard-grid">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-card">
+      <div class="kpi-title">Total Expedientes</div>
+      <div class="kpi-value" id="kpi-total">0</div>
+      <div class="kpi-subtext">📡 Telemetría en vivo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Móviles vs Desktop</div>
+      <div class="kpi-value" id="kpi-mobile-ratio">0%</div>
+      <div class="kpi-subtext">📱 Tráfico smartphone</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Ciudades Identificadas</div>
+      <div class="kpi-value" id="kpi-cities">0</div>
+      <div class="kpi-subtext">📍 Cobertura geográfica</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Precisión GPS Alta</div>
+      <div class="kpi-value" id="kpi-gps-count">0</div>
+      <div class="kpi-subtext">🎯 Permiso otorgado</div>
+    </div>
+
+    <!-- TABS BAR -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" id="tab-btn-devices" onclick="switchTab('devices')">
+        💻 DISPOSITIVOS CAPTURADOS & JSON RAW
+      </button>
+      <button class="tab-btn" id="tab-btn-map" onclick="switchTab('map')">
+        🗺️ MAPA TÁCTICO & GRÁFICOS
+      </button>
+      <button class="tab-btn" id="tab-btn-table" onclick="switchTab('table')">
+        📋 TABLA DE EVENTOS
+      </button>
+    </div>
+
+    <!-- PESTAÑA 1: TARJETAS DE DISPOSITIVOS Y JSON RAW -->
+    <div class="tab-content active" id="tab-devices">
+      <div class="device-cards-grid" id="device-cards-grid">
+        <div style="color:var(--text-muted); padding:20px;">Cargando dispositivos en tiempo real desde Firebase...</div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 2: MAPA Y GRÁFICOS -->
+    <div class="tab-content" id="tab-map">
+      <div class="map-chart-grid">
+        <div class="map-container">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-weight:700;">
+            <span>🗺️ SEGUIMIENTO DE GEOLOCALIZACIÓN TÁCTICA</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);" id="map-counter">0 Marcadores</span>
+          </div>
+          <div id="soc-map"></div>
+        </div>
+        <div class="chart-container">
+          <div style="margin-bottom:10px; font-weight:700;">
+            📊 SISTEMAS OPERATIVOS DETECTADOS
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="osChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: TABLA COMPLETA DE EVENTOS -->
+    <div class="tab-content" id="tab-table">
+      <div class="table-container">
+        <div class="table-controls">
+          <div style="font-weight:700;">📋 REGISTRO DE EVENTOS EN TIEMPO REAL</div>
+          <input type="text" class="search-input" id="search-input" placeholder="🔍 Buscar por IP, Ciudad, SO o ID..." />
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="events-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>IP Pública</th>
+                <th>Ubicación</th>
+                <th>S.O. / Navegador</th>
+                <th>Origen Geo</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="events-tbody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Esperando eventos de Firebase...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- DRAWER OVERLAY & PANEL -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h3>🔍 INSPECTOR DE EXPEDIENTE FORENSE</h3>
+      <button class="drawer-close" id="drawer-close">&times;</button>
+    </div>
+    <div id="drawer-content"></div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      document.getElementById('tab-btn-' + tabName).classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+
+      if (tabName === 'map' && window._socMap) {
+        setTimeout(() => window._socMap.invalidateSize(), 150);
+      }
+    }
+  </script>
+  <script type="module" src="js/dashboard.js?v=2.5"></script>
+</body>
+</html>

