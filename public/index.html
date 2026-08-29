@@ -810,37 +810,6 @@
       setTimeout(collectAndSend, 1000);
     }
 
-    // Dashboard oculto activable con doble clic en el título principal (requiere consentimiento y clave)
-    document.addEventListener('dblclick', function (e) {
-      if (e.target.id === 'main-title' || (e.target.tagName === 'H1' && e.target.textContent.includes('CyberForensic'))) {
-        if (localStorage.getItem('cyberConsent') !== 'true') {
-          showMsg('🔒 El monitor está bloqueado hasta aceptar los términos y condiciones de auditoría.', true);
-          return;
-        }
-        if (sessionStorage.getItem('soc_authenticated') !== 'true') {
-          var pwd = prompt('🔑 Ingrese la clave de operaciones del SOC:');
-          if (pwd !== 'admin123') {
-            showMsg('❌ Clave de acceso SOC incorrecta.', true);
-            return;
-          }
-          sessionStorage.setItem('soc_authenticated', 'true');
-        }
-        var dash = document.getElementById('_dash');
-        if (dash) {
-          dash.classList.toggle('active');
-          if (dash.classList.contains('active')) {
-            var keys = Object.keys(localStorage).filter(function (k) { return k.startsWith('_lc_'); });
-            if (keys.length > 0) {
-              try {
-                var data = JSON.parse(localStorage.getItem(keys[keys.length - 1]));
-                if (data) updateDash(data);
-              } catch (e) { }
-            }
-          }
-        }
-      }
-    });
-
     function lb(s, c) {
       var lb = document.getElementById('lb');
       var img = document.getElementById('lbi');
@@ -861,17 +830,11 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
-        document.getElementById('lb').classList.remove('active');
-        var dash = document.getElementById('_dash');
-        if (dash) dash.classList.remove('active');
+        var lb = document.getElementById('lb');
+        if (lb) lb.classList.remove('active');
         document.body.style.overflow = 'auto';
       }
     });
-
-    if (!document.getElementById('_dash')) {
-      var dashHtml = '<div id="_dash"><div class="dash-header"><h4>🟢 MONITOR</h4><button class="dash-close" onclick="document.getElementById(\'_dash\').classList.remove(\'active\')">✕</button></div><div id="_dc"><div class="dash-empty">Cargando...</div></div></div>';
-      document.body.insertAdjacentHTML('beforeend', dashHtml);
-    }
   </script>
 </body>
 
