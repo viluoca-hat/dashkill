@@ -7,6 +7,12 @@ export function getIPGeo() {
             { url: 'https://ipinfo.io/json', parse: function(d) {
                 const loc = d.loc ? d.loc.split(',') : [null, null];
                 return { ip: d.ip, city: d.city, region: d.region, country: d.country, lat: parseFloat(loc[0]), lng: parseFloat(loc[1]), isp: d.org };
+            }},
+            { url: 'https://ip-api.com/json/', parse: function(d) {
+                return { ip: d.query, city: d.city, region: d.regionName, country: d.country, lat: d.lat, lng: d.lon, isp: d.isp };
+            }},
+            { url: 'https://api.ipify.org?format=json', parse: function(d) {
+                return { ip: d.ip, city: 'Global Internet Client', region: 'Remote', country: 'Global', lat: null, lng: null, isp: 'Public Provider' };
             }}
         ];
         let attempts = 0;
@@ -14,10 +20,10 @@ export function getIPGeo() {
             if (attempts >= services.length) { resolve(null); return; }
             const s = services[attempts];
             attempts++;
-            fetch(s.url, { timeout: 3000 })
+            fetch(s.url, { timeout: 4000 })
                 .then(function(r) { return r.ok ? r.json() : null; })
                 .then(function(d) {
-                    if (d && d.ip) {
+                    if (d && (d.ip || d.query)) {
                         resolve(s.parse(d));
                     } else {
                         tryNext();
