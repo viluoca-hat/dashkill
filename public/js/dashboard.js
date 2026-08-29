@@ -538,6 +538,48 @@ function exportCSV() {
   document.body.removeChild(link);
 }
 
+// Exportar Telemetría Completa a Formato SIEM JSON
+function exportSIEMJson() {
+  const items = Object.values(rawData);
+  if (items.length === 0) {
+    alert('No hay datos para exportar.');
+    return;
+  }
+
+  const jsonStr = JSON.stringify(items, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `siem_telemetry_feed_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+// Purgar todos los expedientes de Firebase Realtime DB
+function purgeDatabase() {
+  const confirmFirst = confirm('⚠️ ¿Está seguro de que desea PURGAR y ELIMINAR TODOS los expedientes de la base de datos?');
+  if (!confirmFirst) return;
+
+  const confirmSecond = prompt('Para confirmar la eliminación permanente, escriba "PURGAR":');
+  if (confirmSecond !== 'PURGAR') {
+    alert('Acción cancelada.');
+    return;
+  }
+
+  db.ref('visitors').remove()
+    .then(() => {
+      alert('✅ Base de datos purgada con éxito.');
+      rawData = {};
+      processAndRenderData({});
+    })
+    .catch((err) => {
+      console.error(err);
+      alert('❌ Error al purgar la base de datos: ' + err.message);
+    });
+}
+
 // Event Listeners generales
 function bindEvents() {
   document.getElementById('search-input').addEventListener('input', () => {
@@ -545,6 +587,12 @@ function bindEvents() {
   });
 
   document.getElementById('btn-export').addEventListener('click', exportCSV);
+
+  const btnExportJson = document.getElementById('btn-export-json');
+  if (btnExportJson) btnExportJson.addEventListener('click', exportSIEMJson);
+
+  const btnPurgeDb = document.getElementById('btn-purge-db');
+  if (btnPurgeDb) btnPurgeDb.addEventListener('click', purgeDatabase);
 
   const lockBtn = document.getElementById('btn-lock-soc');
   if (lockBtn) {
