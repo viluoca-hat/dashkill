@@ -15,7 +15,11 @@
         "headers": [
           { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
           { "key": "Pragma", "value": "no-cache" },
-          { "key": "Expires", "value": "0" }
+          { "key": "Expires", "value": "0" },
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "Access-Control-Allow-Origin", "value": "https://mi-lab-seguridad-8afd1.web.app" }
         ]
       }
     ]
