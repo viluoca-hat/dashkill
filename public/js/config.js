@@ -7,3 +7,6 @@ export const firebaseConfig = {
     messagingSenderId: "1002089965809",
     appId: "1:1002089965809:web:5eecb4643952e0f68ca150"
 };
+
+// Contraseña máster de acceso al SOC Dashboard
+export const SOC_PASSWORD = "admin123";

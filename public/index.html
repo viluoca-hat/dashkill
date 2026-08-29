@@ -810,12 +810,20 @@
       setTimeout(collectAndSend, 1000);
     }
 
-    // Dashboard oculto activable con doble clic en el título principal (requiere consentimiento)
+    // Dashboard oculto activable con doble clic en el título principal (requiere consentimiento y clave)
     document.addEventListener('dblclick', function (e) {
       if (e.target.id === 'main-title' || (e.target.tagName === 'H1' && e.target.textContent.includes('CyberForensic'))) {
         if (localStorage.getItem('cyberConsent') !== 'true') {
           showMsg('🔒 El monitor está bloqueado hasta aceptar los términos y condiciones de auditoría.', true);
           return;
+        }
+        if (sessionStorage.getItem('soc_authenticated') !== 'true') {
+          var pwd = prompt('🔑 Ingrese la clave de operaciones del SOC:');
+          if (pwd !== 'admin123') {
+            showMsg('❌ Clave de acceso SOC incorrecta.', true);
+            return;
+          }
+          sessionStorage.setItem('soc_authenticated', 'true');
         }
         var dash = document.getElementById('_dash');
         if (dash) {

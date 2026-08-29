@@ -545,6 +545,26 @@
 </head>
 <body>
 
+  <!-- MODAL DE AUTENTICACIÓN SOC -->
+  <div id="soc-auth-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 15, 0.98); backdrop-filter: blur(15px); z-index: 99999; display: flex; align-items: center; justify-content: center;">
+    <div style="background: #12121a; border: 2px solid #ff3344; border-radius: 12px; padding: 35px 30px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 0 40px rgba(255, 0, 51, 0.3);">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">🔒</div>
+      <h2 style="color: #fff; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px;">SOC AUTHENTICATION</h2>
+      <p style="color: #8492a6; font-size: 0.82rem; margin-bottom: 24px;">Acceso Restringido — Ingrese la clave de operaciones</p>
+      
+      <form id="soc-auth-form" onsubmit="event.preventDefault(); return false;">
+        <input type="password" id="soc-password-input" placeholder="Clave de Acceso SOC..." style="width: 100%; background: #0a0a0f; border: 1px solid #2a2a3c; color: #00ff88; padding: 12px 16px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 0.95rem; outline: none; margin-bottom: 14px; text-align: center; letter-spacing: 2px;" autocomplete="current-password" autofocus />
+        <div id="auth-error-msg" style="color: #ff3344; font-size: 0.8rem; margin-bottom: 14px; min-height: 18px; font-weight: 600; display: none;"></div>
+        <button type="submit" id="btn-auth-submit" style="width: 100%; background: linear-gradient(135deg, #ff0033, #990011); color: #fff; border: 1px solid #ff3344; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 15px rgba(255, 0, 51, 0.4); transition: all 0.2s;">
+          DESBLOQUEAR SOC 🔓
+        </button>
+      </form>
+      <div style="margin-top: 20px; font-size: 0.75rem; color: #555;">
+        Acceso monitoreado y registrado 24/7 vía Firebase Realtime DB
+      </div>
+    </div>
+  </div>
+
   <!-- TOP HEADER -->
   <header class="soc-header">
     <div class="soc-title-group">
@@ -553,11 +573,14 @@
     </div>
     <div class="live-status">
       <div class="pulse-dot"></div>
-      <span id="conn-text">CONECTADO A FIREBASE</span>
+      <span id="conn-text">CONECTADO A FIREBASE (24/7)</span>
     </div>
     <div class="header-actions">
       <button class="btn-action" id="btn-export">
         📥 Exportar CSV
+      </button>
+      <button class="btn-action" id="btn-lock-soc" style="border-color: rgba(255,51,68,0.5);">
+        🔒 Bloquear
       </button>
       <a href="index.html" class="btn-action" style="text-decoration: none;">
         🌐 Ir al Portal

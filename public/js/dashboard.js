@@ -1,5 +1,5 @@
 // public/js/dashboard.js
-import { firebaseConfig } from './config.js';
+import { firebaseConfig, SOC_PASSWORD } from './config.js';
 
 // Inicializar Firebase Compat si aún no está inicializado
 if (typeof firebase !== 'undefined' && !firebase.apps.length) {
@@ -18,8 +18,52 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   initChart();
   bindEvents();
-  listenToFirebase();
+  initAuth();
 });
+
+// Función de autenticación SOC
+function initAuth() {
+  const overlay = document.getElementById('soc-auth-overlay');
+  const form = document.getElementById('soc-auth-form');
+  const input = document.getElementById('soc-password-input');
+  const errorMsg = document.getElementById('auth-error-msg');
+
+  if (sessionStorage.getItem('soc_authenticated') === 'true') {
+    if (overlay) overlay.style.display = 'none';
+    listenToFirebase();
+    return;
+  }
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pwd = (input.value || '').trim();
+      const targetPwd = SOC_PASSWORD || 'admin123';
+      if (pwd === targetPwd) {
+        sessionStorage.setItem('soc_authenticated', 'true');
+        if (overlay) {
+          overlay.style.transition = 'opacity 0.3s ease';
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.style.opacity = '1';
+          }, 300);
+        }
+        listenToFirebase();
+      } else {
+        if (errorMsg) {
+          errorMsg.textContent = '❌ CLAVE INCORRECTA — ACCESO DENEGADO';
+          errorMsg.style.display = 'block';
+        }
+        if (input) {
+          input.style.borderColor = '#ff3344';
+          input.value = '';
+          input.focus();
+        }
+      }
+    });
+  }
+}
 
 // 1. Inicializar Mapa Leaflet Dark Theme
 function initMap() {
@@ -429,6 +473,20 @@ function bindEvents() {
   });
 
   document.getElementById('btn-export').addEventListener('click', exportCSV);
+
+  const lockBtn = document.getElementById('btn-lock-soc');
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('soc_authenticated');
+      const overlay = document.getElementById('soc-auth-overlay');
+      const input = document.getElementById('soc-password-input');
+      const errorMsg = document.getElementById('auth-error-msg');
+      if (errorMsg) errorMsg.style.display = 'none';
+      if (input) input.value = '';
+      if (overlay) overlay.style.display = 'flex';
+    });
+  }
+
   document.getElementById('drawer-close').addEventListener('click', closeDrawer);
   document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
 
